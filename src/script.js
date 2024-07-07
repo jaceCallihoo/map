@@ -1,9 +1,12 @@
-
+// call once
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
-const PMTILES_URL = 'https://test-bucket-jace.s3.us-east-2.amazonaws.com/lightning/1.pmtiles'
-const p = new pmtiles.PMTiles(PMTILES_URL)
-protocol.add(p)
+
+// call every time?
+// Or not?
+// const PMTILES_URL = 'https://test-bucket-jace.s3.us-east-2.amazonaws.com/lightning/1.pmtiles'
+// const p = new pmtiles.PMTiles(PMTILES_URL)
+// protocol.add(p)
 
 const map = new maplibregl.Map({
     container: 'map', // container id
@@ -12,18 +15,41 @@ const map = new maplibregl.Map({
     zoom: 1 // starting zoom
 });
 
+function a() {
+    setTimeout(() => {
+        const add = 'incidents';
+        map.removeLayer('points')
+        map.removeSource('pm')
+        addPMSource(add)
+        addPMLayer(add)
+        b()
+    }, 2000)
+}
+
+function b() {
+    setTimeout(() => {
+        const add = 'lightning';
+        map.removeLayer('points')
+        map.removeSource('pm')
+        addPMSource(add)
+        addPMLayer(add)
+        a()
+    }, 2000)
+}
 
 map.on('load', async () => {
-
     await loadMapAssets();
 
     addHighwaySource();
     addHighwayLayer();
 
-    addLightningSource();
-    addLightningLayer();
+    // const layer = 'lightning';
+    const layer = 'incidents';
+    addPMSource(layer);
+    addPMLayer(layer);
 
     console.log(map.getStyle().layers)
+    a()
 })
 
 async function loadMapAssets() {
@@ -56,18 +82,30 @@ function addHighwayLayer() {
     })
 }
 
-function addLightningSource() {
+function addPMSource(layer) {
+    const sourceFile = {
+        lightning: 1,
+        incidents: 2,
+    }[layer];
+    console.assert(sourceFile)
+
     map.addSource("pm", {
         type: 'vector',
-        url: `pmtiles://${PMTILES_URL}`
+        url: `pmtiles://https://test-bucket-jace.s3.us-east-2.amazonaws.com/lightning/${sourceFile}.pmtiles`
     })
 }
 
-function addLightningLayer() {
+function addPMLayer(layer) {
+    const sourceLayer = {
+        lightning: 'lightningstokes',
+        incidents: 'incidents',
+    }[layer];
+    console.assert(sourceLayer)
+
     map.addLayer({
         'id': 'points',
         'type': 'symbol',
-        'source-layer': 'lightningstokes',
+        'source-layer': sourceLayer,
         'source': 'pm',
         'layout': {
             'icon-image': 'lightning-image',
