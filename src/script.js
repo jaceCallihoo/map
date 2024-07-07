@@ -27,12 +27,12 @@ map.on('load', async () => {
 })
 
 async function loadMapAssets() {
-    const image = await map.loadImage('https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png');
+    const image = await map.loadImage('https://cdn4.iconfinder.com/data/icons/the-weather-is-nice-today/64/weather_11-64.png');
     map.addImage('lightning-image', image.data);
 }
 
 function addHighwaySource() {
-    map.addSource({
+    map.addSource("highway_source", {
         type: 'vector',
         // url: 'https://maps-vector.pelmorex.com/data/highwayconditions.json',
         tiles: ['https://maps-vector.tech.pelmorex.com/data/highwayconditions/{z}/{x}/{y}.pbf']
@@ -43,7 +43,7 @@ function addHighwayLayer() {
     map.addLayer({
         id: 'dry',
         type: 'line',
-        source: 'HWY_HC',
+        source: 'highway_source',
         'source-layer': 'BD',
         layout: {
             'line-join': 'round',
@@ -75,7 +75,7 @@ function addLightningLayer() {
             'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
             'text-offset': [0, 0.6],
             'text-anchor': 'top',
-            'icon-size': 0.1
+            'icon-size': 0.5
         }
     });
 }
