@@ -1,4 +1,46 @@
+:root {
+    --ui-grid-padding: 20px;
+}
+
+html {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
 #map {
     height: 100vh;
     width: 100vw;
+    padding: 0;
+    margin: 0;
+    display: none;
 }
+
+#ui {
+    position: absolute;
+    height: calc(100vh - var(--ui-grid-padding) * 2);
+    width: calc(100vw - var(--ui-grid-padding) * 2);
+    top: 0;
+    left: 0;
+
+
+    background-color: rgba(255, 0, 0, 0.25);
+    pointer-events: none;
+
+
+    padding: var(--ui-grid-padding);
+
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+#timeline {
+
+    background-color: rgba(0, 255, 0, 0.25);
+}
+

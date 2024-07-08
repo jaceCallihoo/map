@@ -44,13 +44,18 @@ map.on('load', async () => {
     addHighwayLayer();
 
     // const layer = 'lightning';
-    const layer = 'incidents';
+    const layer = 'lightning';
     addPMSource(layer);
     addPMLayer(layer);
 
+    setTimeout(() => {
+        map.setFilter('points', ['all', ['>=', ['get', 'amplitude'], "-5"], ['<=', ['get', 'amplitude'], "5"]])
+    }, 2000) 
+
     console.log(map.getStyle().layers)
-    a()
 })
+
+
 
 async function loadMapAssets() {
     const image = await map.loadImage('https://cdn4.iconfinder.com/data/icons/the-weather-is-nice-today/64/weather_11-64.png');
