@@ -5,8 +5,27 @@ maplibregl.addProtocol('pmtiles', protocol.tile);
 // call every time?
 // Or not?
 // const PMTILES_URL = 'https://test-bucket-jace.s3.us-east-2.amazonaws.com/lightning/1.pmtiles'
-// const p = new pmtiles.PMTiles(PMTILES_URL)
+const p = new pmtiles.PMTiles('https://test-bucket-jace.s3.us-east-2.amazonaws.com/lightning/1.pmtiles')
+p.getMetadata().then((data) => {
+    console.log(data)
+    let amplitudes = data.tilestats.layers[0].attributes[2].values
+    console.log(amplitudes)
+    amplitudes = amplitudes.map((a) => parseInt(a))
+    amplitudes = amplitudes.sort((a, b) => a - b)
+    console.log(amplitudes)
+    const timelineSlider = document.getElementById('timeline-slider')
+    timelineSlider.min = amplitudes[0]
+    timelineSlider.max = amplitudes[amplitudes.length - 1]
+    timelineSlider.addEventListener('input', () => {
+        console.log(timelineSlider.value)
+        map.setFilter('points', ['==', ['get', 'amplitude'], timelineSlider.value])
+    })
+
+    
+})
 // protocol.add(p)
+
+
 
 const map = new maplibregl.Map({
     container: 'map', // container id
@@ -48,14 +67,31 @@ map.on('load', async () => {
     addPMSource(layer);
     addPMLayer(layer);
 
+    /*
     setTimeout(() => {
         map.setFilter('points', ['all', ['>=', ['get', 'amplitude'], "-5"], ['<=', ['get', 'amplitude'], "5"]])
     }, 2000) 
+    */
 
     console.log(map.getStyle().layers)
+
+
+
+    map.on('sourcedata', (e) => {
+        if (e.sourceId === 'pm') {
+            // console.log('pm has event')
+            // console.log(e)
+            if (e.isSourceLoaded) {
+                // console.log('pm is loaded')
+                const x = map.querySourceFeatures('pm', {
+                    // sourceLayer: 'points'
+                    sourceLayer: 'lightningstokes'
+                })
+                // console.log(x)
+            }
+        }
+    })
 })
-
-
 
 async function loadMapAssets() {
     const image = await map.loadImage('https://cdn4.iconfinder.com/data/icons/the-weather-is-nice-today/64/weather_11-64.png');
@@ -82,7 +118,7 @@ function addHighwayLayer() {
         },
         paint: {
             'line-color': '#ff69b4',
-            'line-width': 1
+            'line-width': 1,
         },
     })
 }
@@ -118,7 +154,14 @@ function addPMLayer(layer) {
             'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
             'text-offset': [0, 0.6],
             'text-anchor': 'top',
-            'icon-size': 0.5
+            'icon-size': 0.5,
+        },
+        'paint': {
+            'icon-opacity': 1,
+            'icon-opacity-transition': {
+                'duration': 0,
+                // 'delay': 5000
+            }
         }
     });
 }
